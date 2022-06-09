@@ -3,7 +3,28 @@
 pragma solidity ^0.8.13;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract Patreon is Ownable {}
+contract Patreon is ReentrancyGuard {
+    mapping(uint256 => Stream) public streams; // maps streamId to stream data struct
+
+    using Counters for Counters.Counter;
+    Counters.Counter streamId; // keep track of unique streamId
+
+    struct Stream {
+        uint256 deposit;
+        uint256 ratePerSecond;
+        uint256 remainingBalance;
+        uint256 startTime;
+        uint256 stopTime;
+        address recipient;
+        address sender;
+        address tokenAddress;
+        bool isEntity;
+    }
+
+    constructor() {
+        console.log("deploying contract");
+    }
+}
