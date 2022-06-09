@@ -27,4 +27,11 @@ contract Patreon is ReentrancyGuard {
     constructor() {
         console.log("deploying contract");
     }
+
+    function tipETH(address recipient) public payable {
+        uint256 amount = msg.value;
+        require(amount > .0001 ether);
+        (bool success, ) = recipient.call{value: amount}("");
+        require(success, "Ether not sent successfully");
+    }
 }
