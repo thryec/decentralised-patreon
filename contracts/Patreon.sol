@@ -23,6 +23,18 @@ contract Patreon is ReentrancyGuard {
         bool isEntity;
     }
 
+    /**
+     * @notice Emits when a stream is successfully created.
+     */
+    event CreateStream(
+        uint256 indexed streamId,
+        address indexed sender,
+        address indexed recipient,
+        uint256 deposit,
+        uint256 startTime,
+        uint256 stopTime
+    );
+
     constructor() {
         console.log("starting streamId is ", _streamIds.current());
     }
@@ -37,35 +49,53 @@ contract Patreon is ReentrancyGuard {
     }
 
     function createETHStream(
-        address recipient,
-        uint256 startTime,
-        uint256 stopTime
+        address _recipient,
+        uint256 _startTime,
+        uint256 _stopTime
     ) public payable returns (uint256) {
-        uint256 depositAmount = msg.value;
-        require(recipient != address(0x00), "stream to the zero address");
-        require(recipient != address(this), "stream to the contract itself");
-        require(recipient != msg.sender, "stream to the caller");
-        require(depositAmount > 0, "deposit is zero");
+        uint256 _depositAmount = msg.value;
+        require(_recipient != address(0x00), "stream to the zero address");
+        require(_recipient != address(this), "stream to the contract itself");
+        require(_recipient != msg.sender, "stream to the caller");
+        require(_depositAmount > 0, "deposit is zero");
         require(
-            startTime >= block.timestamp,
+            _startTime >= block.timestamp,
             "start time before block.timestamp"
         );
-        require(stopTime > startTime, "stop time before the start time");
+        require(_stopTime > _startTime, "stop time before the start time");
 
-        uint256 duration = stopTime - startTime;
-        uint256 _ratePerSecond = depositAmount / duration;
+        uint256 _duration = _stopTime - _startTime;
+        uint256 _ratePerSecond = _depositAmount / _duration;
+
+        /* Without this, the rate per second would be zero. */
+        require(_depositAmount >= _duration, "deposit smaller than time delta");
+
+        /* This condition avoids dealing with remainders */
+        require(
+            _depositAmount % _duration == 0,
+            "deposit not multiple of time delta"
+        );
 
         uint256 currentStreamId = _streamIds.current();
         streams[currentStreamId] = Stream({
-            remainingBalance: depositAmount,
-            deposit: depositAmount,
+            remainingBalance: _depositAmount,
+            deposit: _depositAmount,
             isEntity: true,
             ratePerSecond: _ratePerSecond,
-            recipient: recipient,
+            recipient: _recipient,
             sender: msg.sender,
-            startTime: startTime,
-            stopTime: stopTime
+            startTime: _startTime,
+            stopTime: _stopTime
         });
+
+        emit CreateStream(
+            currentStreamId,
+            msg.sender,
+            _recipient,
+            _depositAmount,
+            _startTime,
+            _stopTime
+        );
 
         _streamIds.increment();
         return currentStreamId;
