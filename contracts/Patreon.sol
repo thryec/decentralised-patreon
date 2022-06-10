@@ -41,7 +41,7 @@ contract Patreon is ReentrancyGuard {
     /**
      * @notice Emits when the recipient of a stream withdraws a portion or all their pro rata share of the stream.
      */
-    event WithdrawFromETHStream(
+    event RecipientWithdrawFromStream(
         uint256 indexed streamId,
         address indexed recipient,
         uint256 amount
@@ -50,7 +50,7 @@ contract Patreon is ReentrancyGuard {
     /**
      * @notice Emits when a stream is successfully cancelled and tokens are transferred back on a pro rata basis.
      */
-    event CancelETHStream(
+    event SenderCancelStream(
         uint256 indexed streamId,
         address indexed sender,
         address indexed recipient,
@@ -119,15 +119,29 @@ contract Patreon is ReentrancyGuard {
         return currentStreamId;
     }
 
-    function withdrawFromETHStream(uint256 streamId, uint256 funds)
+    function recipientWithdrawFromStream(uint256 _streamId, uint256 _amount)
         external
+        nonReentrant
+        streamExists(_streamId)
+        onlyRecipient(_streamId)
         returns (bool)
     {
-        console.log("withdrawing");
-        // emit Withdraw event
+        require(_amount > 0, "amount is zero");
+        Stream memory stream = streams[_streamId];
+
+        uint256 balance = currentETHBalanceOf(_streamId, stream.recipient);
+        require(balance >= _amount, "amount exceeds the available balance");
+        streams[_streamId].remainingBalance = stream.remainingBalance - _amount;
+
+        if (streams[_streamId].remainingBalance == 0) delete streams[_streamId];
+        (bool success, ) = payable(stream.recipient).call{value: _amount}("");
+        require(success, "Ether not withdrawn to recipient");
+
+        emit RecipientWithdrawFromStream(_streamId, stream.recipient, _amount);
+        return true;
     }
 
-    function cancelETHStream(uint256 streamId) external returns (bool) {}
+    function senderCancelStream(uint256 streamId) external returns (bool) {}
 
     function tipETH(address _recipient) public payable {
         require(msg.value > .0001 ether, "Ether sent is lower than minimum");
@@ -140,7 +154,7 @@ contract Patreon is ReentrancyGuard {
     /**
      * @notice Returns the stream with all its properties.
      * @dev Throws if the id does not point to a valid stream.
-     * @param streamId The id of the stream to query.
+     * @param _streamId The id of the stream to query.
      * @return The stream object.
      */
     function getStream(uint256 _streamId)
@@ -160,8 +174,9 @@ contract Patreon is ReentrancyGuard {
      * @return The total funds allocated to `who` as uint256.
      */
     function currentETHBalanceOf(uint256 _streamId, address _who)
-        external
+        public
         view
+        streamExists(_streamId)
         returns (uint256)
     {
         uint256 recipientBalance;
