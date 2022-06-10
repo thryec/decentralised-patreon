@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Streaming concept adapted from https://github.com/sablierhq/sablier
 
 pragma solidity ^0.8.13;
 
@@ -141,7 +142,45 @@ contract Patreon is ReentrancyGuard {
         return true;
     }
 
-    function senderCancelStream(uint256 streamId) external returns (bool) {}
+    function senderCancelStream(uint256 _streamId)
+        external
+        nonReentrant
+        streamExists(_streamId)
+        onlySender(_streamId)
+        returns (bool)
+    {
+        Stream memory stream = streams[_streamId];
+        uint256 senderBalance = currentETHBalanceOf(_streamId, stream.sender);
+        uint256 recipientBalance = currentETHBalanceOf(
+            _streamId,
+            stream.recipient
+        );
+
+        delete streams[_streamId];
+
+        if (recipientBalance > 0) {
+            (bool success, ) = payable(stream.recipient).call{
+                value: recipientBalance
+            }("");
+            require(success, "Ether not withdrawn to recipient");
+        }
+
+        if (senderBalance > 0) {
+            (bool success, ) = payable(stream.sender).call{
+                value: senderBalance
+            }("");
+            require(success, "Ether not withdrawn to recipient");
+        }
+
+        emit SenderCancelStream(
+            _streamId,
+            stream.sender,
+            stream.recipient,
+            senderBalance,
+            recipientBalance
+        );
+        return true;
+    }
 
     function tipETH(address _recipient) public payable {
         require(msg.value > .0001 ether, "Ether sent is lower than minimum");
