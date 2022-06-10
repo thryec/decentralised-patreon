@@ -24,7 +24,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 50000,
           },
         },
       },
@@ -41,7 +41,7 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    opkovan: {
+    optimistickovan: {
       url: "https://kovan.optimism.io",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
@@ -50,6 +50,7 @@ const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
+    gasPrice: 100,
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

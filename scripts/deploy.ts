@@ -1,16 +1,16 @@
 import { ethers } from "hardhat";
 
-async function main() {
-  // We get the contract to deploy
-  const Greeter = await ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+const main = async () => {
+  const Patreon = await ethers.getContractFactory("Patreon");
+  const patreon = await Patreon.deploy();
+  await patreon.deployed();
 
-  await greeter.deployed();
+  console.log("Patreon deployed to:", patreon.address);
+};
 
-  console.log("Greeter deployed to:", greeter.address);
-}
-
-main().catch((error) => {
-  console.error(error);
+try {
+  main();
+} catch (err) {
+  console.error(err);
   process.exitCode = 1;
-});
+}
