@@ -47,11 +47,24 @@ contract Patreon is ReentrancyGuard {
         uint256 amount
     );
 
+    /**
+     * @notice Emits when a stream is successfully cancelled and tokens are transferred back on a pro rata basis.
+     */
+    event CancelETHStream(
+        uint256 indexed streamId,
+        address indexed sender,
+        address indexed recipient,
+        uint256 senderBalance,
+        uint256 recipientBalance
+    );
+
+    //------------------- Contract Logic ------------------- //
+
     constructor() {
         console.log("starting streamId is ", _streamIds.current());
     }
 
-    //------------------- Public Functions ------------------- //
+    //------------------- Mutative Functions ------------------- //
 
     function createETHStream(
         address _recipient,
@@ -114,14 +127,98 @@ contract Patreon is ReentrancyGuard {
         // emit Withdraw event
     }
 
+    function cancelETHStream(uint256 streamId) external returns (bool) {}
+
     function tipETH(address _recipient) public payable {
         require(msg.value > .0001 ether, "Ether sent is lower than minimum");
         (bool success, ) = payable(_recipient).call{value: msg.value}("");
         require(success, "Ether not sent successfully");
     }
 
+    //------------------- View Functions ------------------- //
+
+    /**
+     * @notice Returns the stream with all its properties.
+     * @dev Throws if the id does not point to a valid stream.
+     * @param streamId The id of the stream to query.
+     * @return The stream object.
+     */
+    function getStream(uint256 _streamId)
+        external
+        view
+        streamExists(_streamId)
+        returns (Stream memory)
+    {
+        return streams[_streamId];
+    }
+
+    /**
+     * @notice Returns the available funds for the given stream id and address.
+     * @dev Throws if the id does not point to a valid stream.
+     * @param _streamId The id of the stream for which to query the balance.
+     * @param _who The address for which to query the balance.
+     * @return The total funds allocated to `who` as uint256.
+     */
+    function currentETHBalanceOf(uint256 _streamId, address _who)
+        external
+        view
+        returns (uint256)
+    {
+        uint256 recipientBalance;
+        Stream memory stream = streams[_streamId];
+        uint256 delta = timeDeltaOf(_streamId);
+        uint256 totalRecipientBalance = delta * stream.ratePerSecond;
+
+        /*
+         * If the stream `balance` does not equal `deposit`, it means there have been withdrawals.
+         * We have to subtract the total amount withdrawn from the amount of money that has been
+         * streamed until now.
+         */
+
+        if (stream.deposit > stream.remainingBalance) {
+            uint256 withdrawalAmount = stream.deposit - stream.remainingBalance;
+            recipientBalance = totalRecipientBalance - withdrawalAmount;
+        }
+
+        if (_who == stream.recipient) return recipientBalance;
+        if (_who == stream.sender) {
+            /* `recipientBalance` cannot and should not be bigger than `remainingBalance`. */
+            uint256 senderBalance = stream.remainingBalance - recipientBalance;
+            return senderBalance;
+        }
+        return 0;
+    }
+
+    /**
+     * @notice Returns either the delta in seconds between `block.timestamp` and `startTime` or
+     *  between `stopTime` and `startTime, whichever is smaller. If `block.timestamp` is before
+     *  `startTime`, it returns 0.
+     * @dev Throws if the id does not point to a valid stream.
+     * @param _streamId The id of the stream for which to query the delta.
+     * @return The time delta in seconds.
+     */
+    function timeDeltaOf(uint256 _streamId)
+        public
+        view
+        streamExists(_streamId)
+        returns (uint256)
+    {
+        Stream memory stream = streams[_streamId];
+        if (block.timestamp <= stream.startTime) {
+            return 0;
+        }
+        if (block.timestamp < stream.stopTime) {
+            return block.timestamp - stream.startTime;
+        }
+
+        return stream.stopTime - stream.startTime;
+    }
+
     //------------------- Modifiers ------------------- //
 
+    /**
+     * @dev Throws if the caller is not the sender of the stream.
+     */
     modifier onlySender(uint256 streamId) {
         require(
             msg.sender == streams[streamId].sender,
@@ -130,11 +227,22 @@ contract Patreon is ReentrancyGuard {
         _;
     }
 
+    /**
+     * @dev Throws if the caller is not the recipient of the stream.
+     */
     modifier onlyRecipient(uint256 streamId) {
         require(
             msg.sender == streams[streamId].recipient,
             "caller is not the sender of the stream"
         );
+        _;
+    }
+
+    /**
+     * @dev Throws if the provided id does not point to a valid stream.
+     */
+    modifier streamExists(uint256 streamId) {
+        require(streams[streamId].isEntity, "stream does not exist");
         _;
     }
 }
