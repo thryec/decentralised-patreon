@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract Patreon is ReentrancyGuard {
+    //------------------- Variables ------------------- //
     mapping(uint256 => Stream) public streams; // maps streamIds to stream
 
     using Counters for Counters.Counter;
@@ -23,10 +24,12 @@ contract Patreon is ReentrancyGuard {
         bool isEntity;
     }
 
+    //------------------- Events ------------------- //
+
     /**
      * @notice Emits when a stream is successfully created.
      */
-    event CreateStream(
+    event CreateETHStream(
         uint256 indexed streamId,
         address indexed sender,
         address indexed recipient,
@@ -35,18 +38,20 @@ contract Patreon is ReentrancyGuard {
         uint256 stopTime
     );
 
+    /**
+     * @notice Emits when the recipient of a stream withdraws a portion or all their pro rata share of the stream.
+     */
+    event WithdrawFromETHStream(
+        uint256 indexed streamId,
+        address indexed recipient,
+        uint256 amount
+    );
+
     constructor() {
         console.log("starting streamId is ", _streamIds.current());
     }
 
-    function tipETH(address _recipient) public payable {
-        require(
-            msg.value > .0001 ether,
-            "Ether sent is lower than minimum requirement"
-        );
-        (bool success, ) = payable(_recipient).call{value: msg.value}("");
-        require(success, "Ether not sent successfully");
-    }
+    //------------------- Public Functions ------------------- //
 
     function createETHStream(
         address _recipient,
@@ -88,7 +93,7 @@ contract Patreon is ReentrancyGuard {
             stopTime: _stopTime
         });
 
-        emit CreateStream(
+        emit CreateETHStream(
             currentStreamId,
             msg.sender,
             _recipient,
@@ -99,5 +104,37 @@ contract Patreon is ReentrancyGuard {
 
         _streamIds.increment();
         return currentStreamId;
+    }
+
+    function withdrawFromETHStream(uint256 streamId, uint256 funds)
+        external
+        returns (bool)
+    {
+        console.log("withdrawing");
+        // emit Withdraw event
+    }
+
+    function tipETH(address _recipient) public payable {
+        require(msg.value > .0001 ether, "Ether sent is lower than minimum");
+        (bool success, ) = payable(_recipient).call{value: msg.value}("");
+        require(success, "Ether not sent successfully");
+    }
+
+    //------------------- Modifiers ------------------- //
+
+    modifier onlySender(uint256 streamId) {
+        require(
+            msg.sender == streams[streamId].sender,
+            "caller is not the sender of the stream"
+        );
+        _;
+    }
+
+    modifier onlyRecipient(uint256 streamId) {
+        require(
+            msg.sender == streams[streamId].recipient,
+            "caller is not the sender of the stream"
+        );
+        _;
     }
 }
