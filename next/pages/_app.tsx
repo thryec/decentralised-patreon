@@ -1,3 +1,4 @@
+/* eslint-disable node/no-missing-import */
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -7,14 +8,12 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum],
+  [chain.mainnet, chain.polygon, chain.optimism, chain.optimismKovan],
   [alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }), publicProvider()]
 );
 
-console.log("alchemy id:", process.env.ALCHEMY_ID);
-
 const { connectors } = getDefaultWallets({
-  appName: "My RainbowKit App",
+  appName: "Decentralised Patreon",
   chains,
 });
 

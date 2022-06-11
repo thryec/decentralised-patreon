@@ -1,4 +1,4 @@
-const TipModal = async () => {
+const TipModal = () => {
   return <div>Tip ETH</div>;
 };
 
