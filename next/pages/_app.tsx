@@ -11,6 +11,8 @@ const { chains, provider } = configureChains(
   [alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }), publicProvider()]
 );
 
+console.log("alchemy id:", process.env.ALCHEMY_ID);
+
 const { connectors } = getDefaultWallets({
   appName: "My RainbowKit App",
   chains,
