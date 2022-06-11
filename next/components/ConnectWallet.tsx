@@ -1,7 +1,7 @@
-const ConnectWallet = async () => {
+const ConnectWallet = () => {
   return (
     <div>
-      <button> Connect Wallet</button>
+      <button>Connect Wallet</button>
     </div>
   );
 };
