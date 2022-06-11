@@ -8,9 +8,10 @@ module.exports = {
       fontFamily: {
         body: ["Montserrat", "san-serif"],
         header: ["Messapia", "sans-serif"],
+        Inter: ["Inter", "sans-serif"],
       },
       colors: {
-        midnight: "#1a202c",
+        midnight: "#1b2536",
       },
     },
   },
