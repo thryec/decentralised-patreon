@@ -1,5 +1,7 @@
 /* eslint-disable node/no-missing-import */
 import "../styles/globals.css";
+import Head from "next/head";
+import Header from "../components/Header";
 import type { AppProps } from "next/app";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
@@ -27,6 +29,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
+        <Head>
+          <title>Circle of Life</title>
+        </Head>
+        <Header />
         <Component {...pageProps} />
       </RainbowKitProvider>
     </WagmiConfig>
