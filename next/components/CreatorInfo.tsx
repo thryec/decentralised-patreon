@@ -8,21 +8,24 @@ const CreatorInfo = () => {
   const [tipModal, setTipModal] = useState<boolean>();
 
   return (
-    <div className="border-2 rounded-lg border-slate-400 w-1/2 ">
-      <div>Creator Info</div>
-
-      <div>
-        <button className="bg-blue-100" onClick={() => setStreamModal(true)}>
-          Stream Modal
+    <div className="border-2 rounded-lg border-slate-200 p-5">
+      <div className="text-xl font-bold">Creator Address</div>
+      <div className="flex space-x-2">
+        <button
+          className="bg-gradient-to-r from-green-400 to-blue-500 py-2 px-4 rounded-lg text-white font-bold"
+          onClick={() => setStreamModal(true)}
+        >
+          Stream ETH
         </button>
-        {streamModal && <StreamModal setStreamModal={setStreamModal} />}
-      </div>
-      <div>
-        <button className="bg-blue-100" onClick={() => setTipModal(true)}>
-          Tip Modal
+        <button
+          className="bg-gradient-to-r from-pink-500 to-yellow-500  py-2 px-4 rounded-lg text-white font-bold"
+          onClick={() => setTipModal(true)}
+        >
+          Tip ETH
         </button>
-        {tipModal && <TipModal setTipModal={setTipModal} />}
       </div>
+      {streamModal && <StreamModal setStreamModal={setStreamModal} />}
+      {tipModal && <TipModal setTipModal={setTipModal} />}
     </div>
   );
 };

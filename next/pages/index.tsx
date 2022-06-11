@@ -5,7 +5,7 @@ import CreatorInfo from "../components/CreatorInfo";
 
 const Home: NextPage = () => {
   return (
-    <div className="flex justify-center h-screen bg-slate-200 font-Inter">
+    <div className="flex justify-center h-screen">
       <div>
         <div>
           <CreatorInfo />
