@@ -9,7 +9,7 @@ const StreamModal = (props: StreamModalProps) => {
         className="absolute bg-black opacity-50 inset-0 z-0"
         onClick={() => props.setStreamModal(false)}
       ></div>
-      <div className="w-full  max-w-lg p-5 relative mx-auto my-auto rounded-xl shadow-lg bg-white">
+      <div className="w-full max-w-lg p-5 relative mx-auto my-auto rounded-xl shadow-lg bg-white">
         Stream Modal
       </div>
     </div>
