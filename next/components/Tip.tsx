@@ -1,11 +1,9 @@
+/* eslint-disable node/no-missing-import */
 import { useAccount } from "wagmi";
+import { shortenAddress } from "../helpers";
 
 const Tip = () => {
   const { data } = useAccount();
-
-  const shortenAddress = (str: any) => {
-    return str.substring(0, 5) + "..." + str.substring(str.length - 4);
-  };
 
   return (
     <div>
@@ -17,11 +15,11 @@ const Tip = () => {
       <input
         type="text"
         className="border border-slate-200 rounded-md"
-        placeholder="ETH "
+        placeholder="ETH"
       />{" "}
       ETH
       <button className="px-4 py-2 bg-blue-500 rounded-md text-white font-bold block">
-        Submit
+        Tip
       </button>
     </div>
   );
