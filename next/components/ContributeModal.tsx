@@ -1,4 +1,7 @@
+/* eslint-disable node/no-missing-import */
 import { useState } from "react";
+import Tip from "./Tip";
+import Subscribe from "./Subscribe";
 
 interface ContributeModalProps {
   setContributeModal: (a: boolean) => void;
@@ -14,18 +17,18 @@ const ContributeModal = (props: ContributeModalProps) => {
         onClick={() => props.setContributeModal(false)}
       />
       <div className="w-full max-w-lg p-5 relative mx-auto my-auto rounded-xl shadow-lg bg-white">
-        <h1 className="font-bold text-xl">Contribute</h1>
+        <h1 className="font-bold text-2xl">Contribute to creator</h1>
         <div className="flex place-content-center space-x-8">
           {recurring ? (
             <button
-              className="border-2 border-slate-100 rounded-md px-4 py-2 font-bold"
+              className="border-2 border-slate-100 rounded-lg px-4 py-2 font-bold"
               onClick={() => setRecurring(false)}
             >
               Tip
             </button>
           ) : (
             <button
-              className="border-2 border-white  bg-slate-100 rounded-md px-4 py-2 font-bold"
+              className="border-2 border-white  bg-slate-100 rounded-lg px-4 py-2 font-bold"
               onClick={() => setRecurring(false)}
             >
               Tip
@@ -33,23 +36,21 @@ const ContributeModal = (props: ContributeModalProps) => {
           )}
           {recurring ? (
             <button
-              className="border-2 border-white  bg-slate-100 rounded-md px-4 py-2 font-bold"
+              className="border-2 border-white  bg-slate-100 rounded-lg px-4 py-2 font-bold"
               onClick={() => setRecurring(true)}
             >
               Subscribe
             </button>
           ) : (
             <button
-              className="border-2 border-slate-100 rounded-md px-4 py-2 font-bold"
+              className="border-2 border-slate-100 rounded-lg px-4 py-2 font-bold"
               onClick={() => setRecurring(true)}
             >
               Subscribe
             </button>
           )}
         </div>
-        {recurring ? <div>Stream Modal</div> : <div>Tip Modal</div>}
-        <h2>To: creator address</h2>
-        <h2>From: user account</h2>
+        {recurring ? <Subscribe /> : <Tip />}
       </div>
     </div>
   );
