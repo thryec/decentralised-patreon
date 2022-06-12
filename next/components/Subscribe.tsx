@@ -7,7 +7,9 @@ const Subscribe = () => {
 
   return (
     <div>
-      <h2>To: creator address</h2>
+      <h2>
+        To: <code>creator address</code>
+      </h2>
       <h2>
         From: <code>{shortenAddress(data?.address)}</code>
       </h2>
