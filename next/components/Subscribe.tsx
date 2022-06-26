@@ -15,7 +15,7 @@ const Subscribe = () => {
         From: <code>{shortenAddress(data?.address)}</code>
       </h2>
       <div>
-        <label htmlFor="amount">Amount:</label>
+        <label htmlFor="amount">Amount per month:</label>
         <input
           type="text"
           className="border border-slate-200 rounded-md"

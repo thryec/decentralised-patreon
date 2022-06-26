@@ -12,7 +12,7 @@ const CreatorInfo = () => {
         className="bg-gradient-to-r from-pink-500 to-yellow-500  py-2 px-4 rounded-lg text-white font-bold"
         onClick={() => setContributeModal(true)}
       >
-        Stream ETH
+        Send ETH
       </button>
       {contributeModal && (
         <ContributeModal setContributeModal={setContributeModal} />

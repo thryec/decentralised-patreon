@@ -22,7 +22,6 @@ const ContributeModal = (props: ContributeModalProps) => {
             onClick={() => props.setContributeModal(false)}
           />
         </div>
-
         <div className="flex place-content-center space-x-8">
           {recurring ? (
             <button
